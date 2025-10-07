@@ -20,20 +20,5 @@ namespace CasoEstudioAYC
         {
             EsEstadoFinal = true;
         }
-
-        public override string ToString()
-        {
-            return EsEstadoFinal ? $"{Nombre}*" : Nombre;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is Estado estado && Nombre == estado.Nombre;
-        }
-
-        public override int GetHashCode()
-        {
-            return Nombre.GetHashCode();
-        }
     }
 }

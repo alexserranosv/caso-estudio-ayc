@@ -48,22 +48,5 @@ namespace CasoEstudioAYC
         {
             return estadosFinales.Any(estadoFinal => estadosActivos.Contains(estadoFinal));
         }
-
-        public void EstablecerEstados(string[] nuevosEstados)
-        {
-            estadosActivos.Clear();
-            foreach (string estado in nuevosEstados)
-            {
-                if (!string.IsNullOrEmpty(estado))
-                {
-                    estadosActivos.Add(estado);
-                }
-            }
-        }
-
-        public int ObtenerCantidadEstados()
-        {
-            return estadosActivos.Count;
-        }
     }
 }

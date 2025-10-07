@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,11 +12,13 @@ namespace CasoEstudioAYC
     public class EvaluadorExpresionRegular
     {
         // Elementos del quintuplo (Q, Σ, δ, q0, F)
-        private List<Estado> conjuntoEstados;
-        private List<char> alfabeto;
-        private List<Transicion> funcionTransicion;
-        private string estadoInicial;
-        private List<string> estadosFinales;
+        public List<Estado> conjuntoEstados;
+        public List<char> alfabeto;
+        public List<Transicion> funcionTransicion;
+        public string estadoInicial;
+        public List<string> estadosFinales;
+
+        private bool tieneTransicionesInvalidas;
 
         // Clases complementarias para el procesamiento
         private ManejadorDeEstados manejadorEstados;
@@ -37,6 +40,7 @@ namespace CasoEstudioAYC
                        funcionTransicion.Count > 0 &&
                        !string.IsNullOrEmpty(estadoInicial) &&
                        estadosFinales.Count > 0 &&
+                       !tieneTransicionesInvalidas && // ← Nueva validación
                        ValidarConsistenciaDelQuintuplo();
             }
         }
@@ -44,32 +48,64 @@ namespace CasoEstudioAYC
         /// <summary>
         /// Define el conjunto de estados del autómata
         /// </summary>
-        public bool DefinirConjuntoEstados(string[] nombresEstados)
+        public bool DefinirConjuntoEstados(string[] nombresEstados, out string[] NombresEstado)
         {
+            NombresEstado = Array.Empty<string>();
+
             if (nombresEstados == null || nombresEstados.Length == 0)
+            {
                 return false;
+            }
 
             conjuntoEstados.Clear();
-            foreach (string nombre in nombresEstados)
+
+            List<string> lista = new List<string>(nombresEstados);
+            lista.RemoveAll(item => string.IsNullOrWhiteSpace(item));
+
+            NombresEstado = lista.ToArray();
+
+            if (NombresEstado.Length == 0)
             {
-                if (string.IsNullOrEmpty(nombre))
-                    return false;
-                
-                conjuntoEstados.Add(new Estado(nombre));
+                return false;
             }
-            return true;
+
+            NombresEstado = lista.Distinct().ToArray();
+
+            foreach (string nombre in NombresEstado)
+                {
+                    conjuntoEstados.Add(new Estado(nombre));
+                }
+
+                return true;
+          
         }
+
 
         /// <summary>
         /// Define el alfabeto del autómata
         /// </summary>
-        public bool DefinirAlfabeto(char[] simbolos)
+        public bool DefinirAlfabeto(char[] simbolos, out char[] Simbolos)
         {
-            if (simbolos == null || simbolos.Length == 0)
-                return false;
+            Simbolos = Array.Empty<char>();
 
+            if (simbolos == null || simbolos.Length == 0) {
+                return false;
+            }
+               
             alfabeto.Clear();
-            foreach (char simbolo in simbolos)
+
+            List<char> lista = new List<char>(simbolos);
+            lista.RemoveAll(item => char.IsWhiteSpace(item));
+
+            Simbolos = lista.ToArray();
+
+            if (Simbolos.Length == 0) {
+                return false;
+            }
+
+            Simbolos = lista.Distinct().ToArray();
+
+            foreach (char simbolo in Simbolos)
             {
                 // Solo letras y dígitos según requisitos
                 if (char.IsLetterOrDigit(simbolo))
@@ -90,17 +126,33 @@ namespace CasoEstudioAYC
         public bool AgregarTransicion(string estadoOrigen, string estadoDestino, char simbolo)
         {
             if (string.IsNullOrEmpty(estadoOrigen) || string.IsNullOrEmpty(estadoDestino))
+            {
+                tieneTransicionesInvalidas = true;
                 return false;
+            }
 
             // Verificar que los estados existan
             if (!ExisteEstado(estadoOrigen) || !ExisteEstado(estadoDestino))
+            {
+                tieneTransicionesInvalidas = true;
                 return false;
+            }
 
             // Verificar que el símbolo esté en el alfabeto o sea epsilon
             if (simbolo != 'ε' && !alfabeto.Contains(simbolo))
+            {
+                tieneTransicionesInvalidas = true;
                 return false;
+            }
 
             Transicion nuevaTransicion = new Transicion(estadoOrigen, estadoDestino, simbolo);
+
+            //if (funcionTransicion.Contains(nuevaTransicion))
+            //{
+            //    tieneTransicionesInvalidas = true;
+            //    return false;
+            //}
+
             funcionTransicion.Add(nuevaTransicion);
             return true;
         }
@@ -120,13 +172,28 @@ namespace CasoEstudioAYC
         /// <summary>
         /// Define los estados finales del autómata
         /// </summary>
-        public bool DefinirEstadosFinales(string[] nombresEstadosFinales)
+        public bool DefinirEstadosFinales(string[] nombresEstadosFinales, out string[] NombresEstadosFinales)
         {
+            NombresEstadosFinales = Array.Empty<string>();
+
             if (nombresEstadosFinales == null || nombresEstadosFinales.Length == 0)
                 return false;
 
             estadosFinales.Clear();
-            foreach (string nombre in nombresEstadosFinales)
+
+            List<string> lista = new List<string>(nombresEstadosFinales);
+            lista.RemoveAll(item => string.IsNullOrWhiteSpace(item));
+
+            NombresEstadosFinales = lista.ToArray();
+
+            if (NombresEstadosFinales.Length == 0)
+            {
+                return false;
+            }
+
+            NombresEstadosFinales = lista.Distinct().ToArray();
+
+            foreach (string nombre in NombresEstadosFinales)
             {
                 if (string.IsNullOrEmpty(nombre) || !ExisteEstado(nombre))
                     return false;
@@ -173,68 +240,8 @@ namespace CasoEstudioAYC
             estadoInicial = null;
             estadosFinales = new List<string>();
             manejadorEstados = new ManejadorDeEstados();
+            tieneTransicionesInvalidas = false; // ← Reiniciar el flag
         }
-
-        /// <summary>
-        /// Muestra la tabla de transiciones del autómata
-        /// </summary>
-        public void MostrarTablaDeTransiciones()
-        {
-            if (!QuintuploCompleto)
-            {
-                Console.WriteLine("Error: El quintuplo no está completo.");
-                return;
-            }
-
-            Console.WriteLine("=== TABLA DE TRANSICIONES DEL AUTÓMATA ===");
-            Console.WriteLine($"Estado inicial: {estadoInicial}");
-            Console.WriteLine($"Estados finales: {string.Join(", ", estadosFinales)}");
-            Console.WriteLine();
-
-            // Crear encabezado con el alfabeto + epsilon
-            var simbolosOrdenados = alfabeto.OrderBy(c => c).ToList();
-            simbolosOrdenados.Add('ε');
-
-            Console.Write("Estado\t");
-            foreach (char simbolo in simbolosOrdenados)
-            {
-                Console.Write($"{simbolo}\t");
-            }
-            Console.WriteLine();
-
-            // Mostrar transiciones para cada estado
-            foreach (Estado estado in conjuntoEstados.OrderBy(e => e.Nombre))
-            {
-                string marcaEstado = estado.Nombre;
-                if (estado.Nombre == estadoInicial)
-                    marcaEstado = "→" + marcaEstado;
-                if (estado.EsEstadoFinal)
-                    marcaEstado = marcaEstado + "*";
-
-                Console.Write($"{marcaEstado}\t");
-
-                foreach (char simbolo in simbolosOrdenados)
-                {
-                    var transicionesDesdeEstado = funcionTransicion
-                        .Where(t => t.EstadoOrigen == estado.Nombre && t.Simbolo == simbolo)
-                        .Select(t => t.EstadoDestino)
-                        .ToList();
-
-                    if (transicionesDesdeEstado.Count > 0)
-                    {
-                        Console.Write($"{{{string.Join(",", transicionesDesdeEstado)}}}\t");
-                    }
-                    else
-                    {
-                        Console.Write("∅\t");
-                    }
-                }
-                Console.WriteLine();
-            }
-            Console.WriteLine();
-        }
-
-        // === MÉTODOS PRIVADOS DE APOYO ===
 
         private bool ExisteEstado(string nombreEstado)
         {
@@ -255,12 +262,21 @@ namespace CasoEstudioAYC
             }
 
             // Verificar que todas las transiciones tienen estados válidos
+
             foreach (Transicion transicion in funcionTransicion)
             {
+                // Origen y destino deben existir
                 if (!ExisteEstado(transicion.EstadoOrigen) || !ExisteEstado(transicion.EstadoDestino))
                     return false;
+
+                // Símbolo debe pertenecer al alfabeto (excepto epsilon)
+                if (transicion.Simbolo != 'ε' && !alfabeto.Contains(transicion.Simbolo))
+                {
+                    return false;
+                }
             }
 
+       
             return true;
         }
 

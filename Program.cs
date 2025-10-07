@@ -6,122 +6,91 @@ namespace CasoEstudioAYC
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("=== EVALUADOR DE EXPRESIONES REGULARES USANDO ANF-ε ===");
+            Console.WriteLine("=== EVALUADOR DE EXPRESIONES REGULARES USANDO ANF-ε ===\n");
             Console.WriteLine("Caso de Estudio AYC104 - Autómatas y Compiladores\n");
 
             // Crear instancia del evaluador
             EvaluadorExpresionRegular evaluador = new EvaluadorExpresionRegular();
 
-            // === CONFIGURAR AUTÓMATA PARA LA EXPRESIÓN REGULAR (a|b)*abb ===
-            // Este autómata acepta cadenas que terminan en "abb" sobre el alfabeto {a,b}
-            Console.WriteLine("Configurando autómata para la expresión regular: (a|b)*abb");
-            Console.WriteLine("Descripción: Acepta todas las palabras que terminan en 'abb'\n");
+            String er = "(j*k+m?h)e";
 
-            // Definir estados: Q = {q0, q1, q2, q3}
-            string[] estados = { "q0", "q1", "q2", "q3" };
-            bool estadosDefinidos = evaluador.DefinirConjuntoEstados(estados);
-            Console.WriteLine($"Estados definidos: {(estadosDefinidos ? "✓" : "✗")} {string.Join(", ", estados)}");
+            Console.WriteLine($"Configurando autómata para la expresión regular: {er}\n");
 
-            // Definir alfabeto: Σ = {a, b}
-            char[] alfabeto = { 'a', 'b' };
-            bool alfabetoDefinido = evaluador.DefinirAlfabeto(alfabeto);
-            Console.WriteLine($"Alfabeto definido: {(alfabetoDefinido ? "✓" : "✗")} {{{string.Join(", ", alfabeto)}}}");
+            Console.WriteLine("Quintuplo del automata definido:\n");
 
-            // Definir estado inicial: q0
-            bool estadoInicialDefinido = evaluador.DefinirEstadoInicial("q0");
-            Console.WriteLine($"Estado inicial definido: {(estadoInicialDefinido ? "✓" : "✗")} q0");
+            // Definir estados
+            string[] estados = {"q0","q1", "q2", "q3", "q4", "q5", "q6", "q7"};
+            bool estadosDefinidos = evaluador.DefinirConjuntoEstados(estados, out estados);
+            Console.WriteLine($"Q - Estados definidos: {{{string.Join(", ", estados)}}} -> {(estadosDefinidos ? true : false)}");
 
-            // Definir estados finales: F = {q3}
-            string[] estadosFinales = { "q3" };
-            bool estadosFinalesDefinidos = evaluador.DefinirEstadosFinales(estadosFinales);
-            Console.WriteLine($"Estados finales definidos: {(estadosFinalesDefinidos ? "✓" : "✗")} {{{string.Join(", ", estadosFinales)}}}");
+            // Definir alfabeto
+            char[] alfabeto = {'m', 'h', 'j', 'k', 'e'};
+            bool alfabetoDefinido = evaluador.DefinirAlfabeto(alfabeto, out alfabeto);
+            Console.WriteLine($"A - Alfabeto definido: {{{string.Join(", ", alfabeto)}}} -> {(alfabetoDefinido ? true : false)}");
+
+            // Definir estado inicial
+            String Estadoinicial = "q5";
+            bool estadoInicialDefinido = evaluador.DefinirEstadoInicial(Estadoinicial);
+            Console.WriteLine($"s - Estado inicial definido: {(string.IsNullOrWhiteSpace(Estadoinicial) ? "No definido":Estadoinicial)} -> {(estadoInicialDefinido ? true : false)}" );
+
+            // Definir estados finales
+            string[] estadosFinales = {"q6"};
+            bool estadosFinalesDefinidos = evaluador.DefinirEstadosFinales(estadosFinales, out estadosFinales);
+            Console.WriteLine($"F - Estados finales definidos: {{{string.Join(", ", estadosFinales)}}} -> {(estadosFinalesDefinidos ? true : false)}");
 
             // Definir función de transición δ
-            Console.WriteLine("\nDefiniendo transiciones:");
-            
-            // Desde q0: bucle para cualquier símbolo, transición a q1 con 'a'
-            bool t1 = evaluador.AgregarTransicion("q0", "q0", 'a');
-            bool t2 = evaluador.AgregarTransicion("q0", "q0", 'b');
-            bool t3 = evaluador.AgregarTransicion("q0", "q1", 'a');
-            Console.WriteLine($"  δ(q0, a) = {{q0, q1}} - {(t1 && t3 ? "✓" : "✗")}");
-            Console.WriteLine($"  δ(q0, b) = {{q0}} - {(t2 ? "✓" : "✗")}");
+            Console.WriteLine("\nDefiniendo transiciones (O):\n");
 
-            // Desde q1: transición a q2 con 'b'
-            bool t4 = evaluador.AgregarTransicion("q1", "q2", 'b');
-            Console.WriteLine($"  δ(q1, b) = {{q2}} - {(t4 ? "✓" : "✗")}");
+           //Crear transiciones
+            bool t1 = evaluador.AgregarTransicion("q5", "q7", 'e');
+            bool t2 = evaluador.AgregarTransicion("q7", "q0", 'ε');
+            bool t3 = evaluador.AgregarTransicion("q7", "q2", 'ε');
+            bool t4 = evaluador.AgregarTransicion("q0", "q1", 'k');
+            bool t5 = evaluador.AgregarTransicion("q1", "q6", 'ε');
+            bool t6 = evaluador.AgregarTransicion("q2", "q3", 'm');
+            bool t7 = evaluador.AgregarTransicion("q2", "q3", 'ε');
+            bool t8 = evaluador.AgregarTransicion("q3", "q4", 'h');
+            bool t9 = evaluador.AgregarTransicion("q4", "q6", 'ε');
+            bool t10 = evaluador.AgregarTransicion("q0", "q0", 'j');
 
-            // Desde q2: transición a q3 con 'b' (estado final)
-            bool t5 = evaluador.AgregarTransicion("q2", "q3", 'b');
-            Console.WriteLine($"  δ(q2, b) = {{q3}} - {(t5 ? "✓" : "✗")}");
+            Console.WriteLine($"  δ(q0, a) = {{q1}} - {(t1 ? true : false)}");
+            Console.WriteLine($"  δ(q0, b) = {{q1}} - {(t2 ? true : false)}");
+            Console.WriteLine($"  δ(q0, b) = {{q1}} - {(t3 ? true : false)}");
+            Console.WriteLine($"  δ(q0, b) = {{q1}} - {(t4 ? true : false)}");
+            Console.WriteLine($"  δ(q0, b) = {{q1}} - {(t5 ? true : false)}");
+            Console.WriteLine($"  δ(q0, b) = {{q1}} - {(t6 ? true : false)}");
+            Console.WriteLine($"  δ(q0, b) = {{q1}} - {(t7 ? true : false)}");
+            Console.WriteLine($"  δ(q0, b) = {{q1}} - {(t8 ? true : false)}");
+            Console.WriteLine($"  δ(q0, b) = {{q1}} - {(t9 ? true : false)}");
+            Console.WriteLine($"  δ(q0, b) = {{q1}} - {(t10 ? true : false)}");
 
-            Console.WriteLine($"\nQuíntuplo completo: {(evaluador.QuintuploCompleto ? "✓" : "✗")}");
+            //verificar quintuplo completo
+            Console.WriteLine($"\n---------- Quíntuplo completo: {(evaluador.QuintuploCompleto ? true : false)} ----------");
 
-            if (evaluador.QuintuploCompleto)
-            {
+         
                 // Mostrar tabla de transiciones
                 Console.WriteLine();
-                evaluador.MostrarTablaDeTransiciones();
+                MostrarTablaDeTransiciones(evaluador);
 
                 // === PRUEBAS CON PALABRAS ===
                 Console.WriteLine("=== PRUEBAS DE EVALUACIÓN ===");
                 
-                // Palabras que DEBEN ser aceptadas (terminan en 'abb')
-                string[] palabrasAceptadas = { "abb", "aabb", "babb", "ababb", "baabb", "aaabb", "bbabb" };
-                Console.WriteLine("\nPalabras que DEBEN ser ACEPTADAS:");
+                // palabras de prueba
+                string[] palabrasAceptadas = { "ejjk", " ", "ejjjk", "bhfegfeh" };
+                Console.WriteLine("\nResultados de las pruebas:\n");
                 foreach (string palabra in palabrasAceptadas)
                 {
                     char resultado = evaluador.EvaluarPalabra(palabra);
                     string estado = ObtenerDescripcionResultado(resultado);
-                    string simbolo = resultado == 's' ? "✓" : "✗";
-                    Console.WriteLine($"  '{palabra}' → {resultado} ({estado}) {simbolo}");
+                    Console.WriteLine($"  '{palabra}' -> ({estado}) -> {resultado}");
                 }
-
-                // Palabras que DEBEN ser rechazadas (no terminan en 'abb')
-                string[] palabrasRechazadas = { "a", "b", "ab", "ba", "aa", "bb", "aba", "bba", "abab", "abba" };
-                Console.WriteLine("\nPalabras que DEBEN ser RECHAZADAS:");
-                foreach (string palabra in palabrasRechazadas)
-                {
-                    char resultado = evaluador.EvaluarPalabra(palabra);
-                    string estado = ObtenerDescripcionResultado(resultado);
-                    string simbolo = resultado == 'n' ? "✓" : "✗";
-                    Console.WriteLine($"  '{palabra}' → {resultado} ({estado}) {simbolo}");
-                }
-
-                // Prueba con palabra vacía
-                Console.WriteLine("\nPrueba especial:");
-                char resultadoVacio = evaluador.EvaluarPalabra("");
-                string estadoVacio = ObtenerDescripcionResultado(resultadoVacio);
-                string simboloVacio = resultadoVacio == 'n' ? "✓" : "✗";
-                Console.WriteLine($"  '' (palabra vacía) → {resultadoVacio} ({estadoVacio}) {simboloVacio}");
-
-                // Prueba con símbolos inválidos
-                Console.WriteLine("\nPrueba con símbolos fuera del alfabeto:");
-                char resultadoInvalido = evaluador.EvaluarPalabra("abc");
-                string estadoInvalido = ObtenerDescripcionResultado(resultadoInvalido);
-                string simboloInvalido = resultadoInvalido == 'p' ? "✓" : "✗";
-                Console.WriteLine($"  'abc' → {resultadoInvalido} ({estadoInvalido}) {simboloInvalido}");
-
-                // === RESUMEN DE LA IMPLEMENTACIÓN ===
-                Console.WriteLine("\n=== RESUMEN DE LA IMPLEMENTACIÓN ===");
-                Console.WriteLine("✓ Autómata Finito No Determinista con transiciones ε (ANF-ε)");
-                Console.WriteLine("✓ Expresión regular equivalente: (a|b)*abb");
-                Console.WriteLine("✓ Alfabeto: {a, b} (solo letras según requisitos)");
-                Console.WriteLine("✓ Símbolo para transiciones vacías: ε (epsilon)");
-                Console.WriteLine("✓ Clase principal con múltiples clases complementarias");
-                Console.WriteLine("✓ Métodos públicos que solo reciben tipos simples");
-                Console.WriteLine("✓ Evaluación usando algoritmo ANF-ε con clausura epsilon");
-                Console.WriteLine("✓ Tabla de transiciones con estados inicial y finales marcados");
                 
-                Console.WriteLine("\n=== CÓDIGOS DE RETORNO ===");
+                Console.WriteLine("\n=== CÓDIGOS DE RETORNO ===\n");
                 Console.WriteLine("  's': Palabra satisface la expresión regular");
                 Console.WriteLine("  'n': Palabra no cumple la expresión regular");
                 Console.WriteLine("  'p': Palabra contiene símbolos fuera del alfabeto");
                 Console.WriteLine("  'e': Error - quíntuplo incompleto");
-            }
-            else
-            {
-                Console.WriteLine("Error: No se pudo configurar el quíntuplo completo.");
-            }
+            
 
             Console.WriteLine("\nPresiona cualquier tecla para salir...");
             Console.ReadKey();
@@ -131,12 +100,71 @@ namespace CasoEstudioAYC
         {
             return codigo switch
             {
-                's' => "Palabra ACEPTA la expresión regular",
-                'n' => "Palabra NO acepta la expresión regular",
-                'p' => "Palabra contiene símbolos inválidos",
-                'e' => "Error: quíntuplo incompleto",
+                's' => "Palabra satisface la expresión regular",
+                'n' => "Palabra no cumple la expresión regular",
+                'p' => "Palabra contiene símbolos fuera del alfabeto",
+                'e' => "Error - quíntuplo incompleto",
                 _ => "Código desconocido"
             };
+        }
+
+        /// <summary>
+        /// Muestra la tabla de transiciones del autómata
+        /// </summary>
+        public static void MostrarTablaDeTransiciones(EvaluadorExpresionRegular evaluador)
+        {
+            if (!evaluador.QuintuploCompleto)
+            {
+                return;
+            }
+
+            Console.WriteLine("=== TABLA DE TRANSICIONES DEL AUTÓMATA ===\n");
+            Console.WriteLine($"-> Estado inicial: {evaluador.estadoInicial}");
+            Console.WriteLine($"-> Estados finales: {{{string.Join(", ", evaluador.estadosFinales)}}}");
+            Console.WriteLine();
+            Console.WriteLine("-------------------------------------------------");
+            // Crear encabezado con el alfabeto + epsilon
+            var simbolosOrdenados = evaluador.alfabeto.OrderBy(c => c).ToList();
+            simbolosOrdenados.Add('ε');
+         
+            Console.Write("Estado\t");
+            foreach (char simbolo in simbolosOrdenados)
+            {
+                Console.Write($"{simbolo}\t");
+            }
+            Console.WriteLine();
+
+            // Mostrar transiciones para cada estado
+            foreach (Estado estado in evaluador.conjuntoEstados.OrderBy(e => e.Nombre))
+            {
+                string marcaEstado = estado.Nombre;
+                if (estado.Nombre == evaluador.estadoInicial)
+                    marcaEstado = ">" + marcaEstado;
+                if (estado.EsEstadoFinal)
+                    marcaEstado = "*" + marcaEstado;
+
+                Console.Write($"{marcaEstado}\t");
+
+                foreach (char simbolo in simbolosOrdenados)
+                {
+                    var transicionesDesdeEstado = evaluador.funcionTransicion
+                        .Where(t => t.EstadoOrigen == estado.Nombre && t.Simbolo == simbolo)
+                        .Select(t => t.EstadoDestino)
+                        .ToList();
+
+                    if (transicionesDesdeEstado.Count > 0)
+                    {
+                        Console.Write($"{{{string.Join(",", transicionesDesdeEstado)}}}\t");
+                    }
+                    else
+                    {
+                        Console.Write("∅\t");
+                    }
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine("-------------------------------------------------");
+            Console.WriteLine();
         }
     }
 }
