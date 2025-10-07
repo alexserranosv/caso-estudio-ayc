@@ -19,5 +19,18 @@ namespace CasoEstudioAYC
             Simbolo = simbolo;
             EsTransicionVacia = (simbolo == 'ε'); // Símbolo epsilon para transiciones vacías
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Transicion transicion &&
+                   EstadoOrigen == transicion.EstadoOrigen &&
+                   EstadoDestino == transicion.EstadoDestino &&
+                   Simbolo == transicion.Simbolo;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(EstadoOrigen, EstadoDestino, Simbolo);
+        }
     }
 }

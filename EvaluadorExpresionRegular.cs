@@ -147,11 +147,11 @@ namespace CasoEstudioAYC
 
             Transicion nuevaTransicion = new Transicion(estadoOrigen, estadoDestino, simbolo);
 
-            //if (funcionTransicion.Contains(nuevaTransicion))
-            //{
-            //    tieneTransicionesInvalidas = true;
-            //    return false;
-            //}
+            if (funcionTransicion.Contains(nuevaTransicion))
+            {
+                tieneTransicionesInvalidas = true;
+               return false;
+            }
 
             funcionTransicion.Add(nuevaTransicion);
             return true;
@@ -274,8 +274,8 @@ namespace CasoEstudioAYC
                 {
                     return false;
                 }
-            }
 
+            }
        
             return true;
         }

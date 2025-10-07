@@ -4,6 +4,12 @@ namespace CasoEstudioAYC
 {
     class Program
     {
+        //INTEGRANTES:
+        // - Oscar Alberto Alas Guzmán, AG221353
+        // - Jonathan Omar Díaz Reyes, DR160475
+        // - German Alexander Meléndez Serrano, MS172008
+        // - Johan Anthony Menjivar Girón, MG182330
+
         static void Main(string[] args)
         {
             Console.WriteLine("=== EVALUADOR DE EXPRESIONES REGULARES USANDO ANF-ε ===\n");
